@@ -2086,6 +2086,23 @@
                 });
             },
             _onValidateBatchCallbackSuccess: function(validationDescriptors, items, params, endpoint, button) {
+               
+               
+                //###########################Start Of Modification###########################
+             
+                var getAllSpecsOfCurrentButton=this._extraButtonSpecs[this._getButtonId(button)];//get Specifications of each button to get Validation Rules
+                if(getAllSpecsOfCurrentButton&&getAllSpecsOfCurrentButton.validation&&getAllSpecsOfCurrentButton.validation.itemLimit&&getAllSpecsOfCurrentButton.validation.itemLimit>0){ //if it is an extra button and containing validation rules and itemLimit , then make the global _currentItemLimit property = the itemLimit Specified in the validation Rules
+                    this._currentItemLimit=getAllSpecsOfCurrentButton.validation.itemLimit;
+                }
+                else if(!getAllSpecsOfCurrentButton){ //if it isn't an extra button , that means that it is the default uploader button ,so restore the itemLimit Global validation rules to the global _currentItemLimit variable
+                    this._currentItemLimit=this._options.validation.itemLimit;
+                }
+                else{ //in all failure cases, return the global limit variable to itemLimit original value
+                      this._currentItemLimit=this._options.validation.itemLimit;
+                }
+                
+                //########################### End#######################
+               
                 var errorMessage, itemLimit = this._currentItemLimit, proposedNetFilesUploadedOrQueued = this._netUploadedOrQueued;
                 if (itemLimit === 0 || proposedNetFilesUploadedOrQueued <= itemLimit) {
                     if (items.length > 0) {
