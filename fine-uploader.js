@@ -2086,23 +2086,40 @@
                 });
             },
             _onValidateBatchCallbackSuccess: function(validationDescriptors, items, params, endpoint, button) {
-               
-               
-                //###########################Start Of Modification###########################
-             
-                var getAllSpecsOfCurrentButton=this._extraButtonSpecs[this._getButtonId(button)];//get Specifications of each button to get Validation Rules
+                
+                
+                
+                /////Comments : getTotalExtraButtonsUploadLimit()() will return total extra buttons limit allowed . 
+                /////comment : mainUploaderButtonSelector is the main default uploader container and i added this value to the class to become 
+                 /* <div class="qq-upload-button-selector mainUploaderButtonSelector qq-upload-button">
+                    <div style="color:white">Upload a file</div>
+                </div>*/
+                ////
+                ///// comment : this._options.increaseDefaultNumberUploads is an property increased when the user upload items via the default uploader button and decresed when the user deleted file uploaded via the default uploader button alos
+                
+                   if(button.className.indexOf("mainUploaderButtonSelector")>-1){//if the uploader button is the default button 
+            if(this._options.increaseDefaultNumberUploads>=(this._options.validation.itemLimit-getTotalExtraButtonsUploadLimit())){//if the variable that containg numbers of uploads via the default button greater than or equal the limited number of the default button (fullnumber of limits-number of limit of all extra upload buttons) ,then trigger logic item limit error by putting the current item limit variable = the number that the developer defined in the function of requesting the uploader with rules
+                this._currentItemLimit=this._options.validation.itemLimit-getTotalExtraButtonsUploadLimit();
+            }
+            else{//else if not greater than , then put the current item limit = (uploader default limit)+the already uploaded number of files.
+                 this._currentItemLimit=this._options.validation.itemLimit-getTotalExtraButtonsUploadLimit()+this.getNetUploads();
+            }
+           }
+                                  
+                        //if the uploader button is extra  button
+               var getAllSpecsOfCurrentButton=this._extraButtonSpecs[this._getButtonId(button)];//get Specifications of each button to get Validation Rules
                 if(getAllSpecsOfCurrentButton&&getAllSpecsOfCurrentButton.validation&&getAllSpecsOfCurrentButton.validation.itemLimit&&getAllSpecsOfCurrentButton.validation.itemLimit>0){ //if it is an extra button and containing validation rules and itemLimit , then make the global _currentItemLimit property = the itemLimit Specified in the validation Rules
-                    this._currentItemLimit=getAllSpecsOfCurrentButton.validation.itemLimit;
-                }
-                else if(!getAllSpecsOfCurrentButton){ //if it isn't an extra button , that means that it is the default uploader button ,so restore the itemLimit Global validation rules to the global _currentItemLimit variable
-                    this._currentItemLimit=this._options.validation.itemLimit;
-                }
-                else{ //in all failure cases, return the global limit variable to itemLimit original value
-                      this._currentItemLimit=this._options.validation.itemLimit;
+                    this._currentItemLimit=getAllSpecsOfCurrentButton.validation.itemLimit+this.getNetUploads();//put the itemLimit = the already uploaded number files + the button limit
+                    if(this._currentItemLimit>this._options.validation.itemLimit){//but if the new current itemLimit > the total limited number from whole the uploader
+                        this._currentItemLimit=getAllSpecsOfCurrentButton.validation.itemLimit;//then trigger error by putting the current item limit = the limitt number of this button .
+                    }
                 }
                 
-                //########################### End#######################
-               
+                
+                
+                
+                
+                
                 var errorMessage, itemLimit = this._currentItemLimit, proposedNetFilesUploadedOrQueued = this._netUploadedOrQueued;
                 if (itemLimit === 0 || proposedNetFilesUploadedOrQueued <= itemLimit) {
                     if (items.length > 0) {
